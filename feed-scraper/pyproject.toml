@@ -1,0 +1,61 @@
+[tool.poetry]
+name = "rss-feed-scraper"
+version = "0.1.0"
+description = ""
+authors = ["mmishv <pinina7773@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.103.1"
+uvicorn = "^0.23.2"
+pydantic-settings = "^2.0.3"
+bs4 = "^0.0.1"
+aiokafka = "^0.8.1"
+celery = {extras = ["redis"], version = "^5.3.4"}
+pyyaml = "^6.0.1"
+lxml = "^4.9.3"
+pytest = "^7.4.2"
+aiohttp = "^3.8.5"
+pytest-asyncio = "^0.21.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pre_commit]
+hooks = [
+  "trailing-whitespace",
+  "end-of-file-fixer",
+  "check-yaml",
+  "debug-statements",
+  "requirements-txt-fixer",
+  "black",
+  "isort",
+]
+
+[tool.pre_commit.hook-trailing-whitespace]
+files = ["*.py"]
+
+[tool.pre_commit.hook-end-of-file-fixer]
+files = ["*.py"]
+
+[tool.pre_commit.hook-check-yaml]
+files = ["*.yml", "*.yaml"]
+
+[tool.pre_commit.hook-debug-statements]
+files = ["*.py"]
+
+[tool.pre_commit.hook-double-quote-string-fixer]
+files = ["*.py"]
+
+[tool.pre_commit.hook-requirements-txt-fixer]
+files = ["requirements.txt"]
+
+[tool.pre_commit.hook-black]
+files = ["*.py"]
+
+[tool.pre_commit.hook-isort]
+args = ["--profile", "black"]
+files = ["*.py"]
