@@ -1,0 +1,89 @@
+version: '3.10'
+
+services:
+  producer:
+    container_name: producer
+    command: sh -c "uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload"
+    build:
+      context: ./feed-scraper
+    ports:
+      - "8000:8000"
+    depends_on:
+      - kafka
+      - elasticsearch
+
+  consumer:
+    container_name: consumer
+    build:
+      context: ./innonews
+    command: sh -c "uvicorn src.main:app --host 0.0.0.0 --port 8001 --reload"
+    ports:
+      - "8001:8001"
+    restart: on-failure
+    depends_on:
+      - kafka
+      - elasticsearch
+
+  zookeeper:
+    container_name: zookeeper
+    image: docker.io/bitnami/zookeeper:3.9
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    env_file:
+      - .env
+
+  kafka:
+    container_name: kafka
+    image: docker.io/bitnami/kafka:3.4
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka_data:/bitnami"
+    env_file:
+      - .env
+    depends_on:
+      - zookeeper
+
+  celery:
+    restart: always
+    container_name: celery
+    build: ./feed-scraper
+    command: celery -A src.celery worker -l info
+    depends_on:
+      - redis1
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:2.4.6-alpine
+    ports:
+      - "9200:9200"
+    env_file:
+      - .env
+    volumes:
+      - ./esdata:/usr/share/elasticsearch/data
+
+  kibana:
+    image: seeruk/docker-kibana-sense:4.5
+    container_name: kibana
+    env_file:
+      - .env
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  redis1:
+    restart: unless-stopped
+    container_name: redis1
+    image: redis:7.0.5-alpine
+    expose:
+      - 6379
+
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local
+  esdata:
